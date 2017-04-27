@@ -89,7 +89,7 @@
             people: []
         },
         created: function() {
-
+          //Vue2.0官方推荐获取数据方式 https://github.com/mzabriskie/axios
             axios.get('http://123.207.255.211:9999/vueTest1.json')
                 .then(response => {
                     // response.data.forEach(function(elem,index){
@@ -110,4 +110,3 @@
 </body>
 
 </html>
-//Vue2.0官方推荐获取数据方式 https://github.com/mzabriskie/axios
