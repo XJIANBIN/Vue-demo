@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>XUJIANBIN</title>
+</head>
+
+<body>
+    <div id="app">
+        <router-link to="/">Homepage</router-link>
+        <router-view class="view"></router-view>
+    </div>
+    <template id="people-list-template">
+        <ul>
+            <li v-for="person in people">
+                {{person.name}}
+                <router-link :to="{ name: 'person', params: { id: person.guid }}">View Details</router-link>
+            </li>
+        </ul>
+    </template>
+    <template id="people-detail-template">
+        <div>
+            <h1><img :src="person.picture" :alt="person.name">{{ person.name }}</h1>
+            <h3>{{ person.company }}</h3>
+            <ul>
+                <li>Age: {{ person.age }}</li>
+                <li>Eye Colour: {{ person.eyeColor }}</li>
+                <li>Email: <a :href="'mailto:' + person.email">{{ person.email }}</a></li>
+            </ul>
+            <h4>Address</h4>
+            <p>{{ person.address }}</p>
+            <h4>About {{ person.name }}</h4>
+            <p>{{ person.about }}</p>
+        </div>
+    </template>
+    <!-- 引入资源 -->
+    <script src="vue2.3.0.js"></script>
+    <script src="vue-router2.0.1.js"></script>
+    <script src="axios.js"></script>
+    <script id="jsbin-javascript">
+    //注册列表组件
+    var PeopleListing = Vue.extend({
+        // Vue.component('people-list', {
+        template: "#people-list-template",
+        data: function() {
+            return {
+                people: this.$parent.people
+            }
+        }
+    });
+
+
+    //注册详细组件
+    var PersonDetail = Vue.extend({
+        //Vue.component("people-detail", {
+        template: "#people-detail-template",
+        data: function() {
+            var _this = this;
+            var filtered = this.$parent.people.filter(function(item) {
+                return (item.guid == _this.$route.params.id) ? item : false;
+            });
+            return {
+                person: filtered[0]
+            }
+        }
+    });
+
+    //实例化路由
+    var router = new VueRouter({
+        mode: 'hash',
+        base: window.location.href,
+        routes: [{
+            path: '/',
+            component: PeopleListing
+        }, {
+            name: 'person',
+            path: '/:id',
+            component: PersonDetail
+        }]
+    });
+
+
+    //实例化Vue
+    var app = new Vue({
+        router,
+        data: {
+            people: []
+        },
+        created: function() {
+
+            axios.get('http://123.207.255.211:9999/vueTest1.json')
+                .then(response => {
+                    // response.data.forEach(function(elem,index){
+                    //   app.people.push(elem);
+                    // });
+
+                    //this.$set(app, 'people', response.data)
+                    console.log(response.data);
+                    this.people = response.data;
+                    console.log(app);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }
+    }).$mount('#app');
+    </script>
+</body>
+
+</html>
+//Vue2.0官方推荐获取数据方式 https://github.com/mzabriskie/axios
